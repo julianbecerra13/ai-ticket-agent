@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from src.agent.agent import TicketAgent
 from src.agent.providers.mock_provider import MockProvider
 from src.automation.ingestor import CsvIngestor

@@ -16,7 +16,6 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
-
 from src.agent.agent import TicketAgent
 from src.agent.providers.mock_provider import MockProvider
 from src.api.dependencies import get_agent, get_classifier, reset_caches

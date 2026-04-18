@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 
 import pytest
-
 from src.agent.providers.factory import build_provider
 from src.agent.providers.mock_provider import MockProvider
 from src.config import LLMProviderName, Settings

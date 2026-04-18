@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from src.agent.agent import TicketAgent
 from src.agent.providers.base import LLMProvider, LLMProviderError
 from src.db.models import AgentActionType, Ticket, TicketCategory, TicketUrgency
@@ -69,9 +67,7 @@ def test_agente_reintenta_con_json_invalido() -> None:
 
 
 def test_agente_acepta_json_envuelto_en_markdown() -> None:
-    provider = _StaticProvider(
-        '```json\n{"action": "escalate", "reasoning": "caso sensible"}\n```'
-    )
+    provider = _StaticProvider('```json\n{"action": "escalate", "reasoning": "caso sensible"}\n```')
     decision = TicketAgent(provider).decide(ticket=_ticket(), prediction=_prediction())
     assert decision.action == AgentActionType.ESCALATE
     assert decision.reasoning == "caso sensible"

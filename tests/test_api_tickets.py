@@ -17,8 +17,19 @@ def test_crear_ticket_con_agente(client: TestClient) -> None:
     data = response.json()
     assert data["classified"] is True
     assert data["decided"] is True
-    assert data["ticket"]["prediction"]["category"] in {"cuenta", "tecnico", "informacion", "facturacion", "queja"}
-    assert data["ticket"]["decision"]["action"] in {"auto_respond", "escalate", "request_info", "close_duplicate"}
+    assert data["ticket"]["prediction"]["category"] in {
+        "cuenta",
+        "tecnico",
+        "informacion",
+        "facturacion",
+        "queja",
+    }
+    assert data["ticket"]["decision"]["action"] in {
+        "auto_respond",
+        "escalate",
+        "request_info",
+        "close_duplicate",
+    }
 
 
 def test_crear_ticket_sin_llm_queda_solo_clasificado(client_without_llm: TestClient) -> None:

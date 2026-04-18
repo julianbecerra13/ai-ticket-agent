@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from src.db.models import TicketCategory, TicketUrgency
 from src.ml.classifier import TicketClassifier
 from src.ml.dataset import generate_dataset

@@ -35,6 +35,7 @@ migrate:
 
 train:
 	docker compose exec api python scripts/train_model.py
+	docker compose restart api
 
 seed:
 	docker compose exec api python scripts/seed_db.py

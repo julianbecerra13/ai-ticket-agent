@@ -234,14 +234,20 @@ Si el LLM devuelve JSON invalido o falla por red, el agente:
 
 ## Metricas del modelo
 
-El dataset sintetico (~800 filas, 5 categorias y 4 niveles de urgencia) produce tipicamente:
+El dataset sintetico (~800 filas, 5 categorias y 4 niveles de urgencia) genera un test set donde el modelo alcanza accuracy cercana a 1.0 tanto en categoria como en urgencia:
 
 | Tarea | Accuracy | F1 macro |
 |-------|----------|----------|
-| Categoria | > 0.90 | > 0.90 |
-| Urgencia | > 0.85 | > 0.85 |
+| Categoria | ~1.00 | ~1.00 |
+| Urgencia | ~1.00 | ~1.00 |
 
-Las matrices de confusion se generan en `docs/images/confusion_category.png` y `docs/images/confusion_urgency.png` cada vez que se corre `make train`.
+Matrices de confusion:
+
+| Categoria | Urgencia |
+|-----------|----------|
+| ![Categoria](docs/images/confusion_category.png) | ![Urgencia](docs/images/confusion_urgency.png) |
+
+> **Nota honesta sobre las metricas.** El accuracy tan alto refleja que el dataset es sintetico y que las variaciones entre muestras son limitadas (prefijos de urgencia, sufijos amables y combinaciones de plantillas). Con tickets reales recopilados en produccion se espera accuracy en el rango 0.85–0.92. Este proyecto esta pensado como esqueleto listo para re-entrenar con datos del dominio final; el pipeline, la persistencia, el agente y el monitoreo ya estan preparados.
 
 Para explorar los datos y reproducir graficas, abre `notebooks/01_exploracion_modelo.ipynb`.
 

@@ -54,7 +54,11 @@ def decide(
             confidence_urgency=ticket.prediction.confidence_urgency,
         )
 
-    recent = [t for t in TicketRepository(db).list_recent(limit=10) if t.user_id == ticket.user_id and t.id != ticket.id]
+    recent = [
+        t
+        for t in TicketRepository(db).list_recent(limit=10)
+        if t.user_id == ticket.user_id and t.id != ticket.id
+    ]
     result = agent.decide(ticket=ticket, prediction=prediction, recent_history=recent)
 
     decision_repo = AgentDecisionRepository(db)

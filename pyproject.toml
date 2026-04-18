@@ -66,7 +66,16 @@ src = ["src", "tests", "scripts"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
-ignore = ["E501"]
+# E501: longitudes de linea las maneja el formateador
+# N806: variables tipo X_train/X_test son convencion de sklearn
+# N818: ExcepcionesError es un nombre valido para clases de error
+# B008: FastAPI usa Depends() en defaults deliberadamente
+ignore = ["E501", "N806", "N818", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"alembic/versions/*.py" = ["E402"]
+"scripts/*.py" = ["T201"]
+"tests/*.py" = ["S101"]
 
 [tool.ruff.format]
 quote-style = "double"

@@ -1,8 +1,9 @@
 """Fixtures compartidas por la suite de tests.
 
-Usamos SQLite en memoria para que los tests no dependan de Postgres y corran
-en cualquier maquina. El `TicketAgent` se inyecta con `MockProvider`, evitando
-llamadas a proveedores reales.
+Usamos SQLite en memoria con `StaticPool` (una sola conexion compartida entre
+fixtures y la app), y limpiamos todas las tablas entre tests con un fixture
+`autouse`. Esto evita el lio de transacciones anidadas y garantiza
+aislamiento real por test.
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from src.agent.agent import TicketAgent
 from src.agent.providers.mock_provider import MockProvider
@@ -30,24 +32,33 @@ def _engine():
     engine = create_engine(
         "sqlite+pysqlite:///:memory:",
         connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
         future=True,
     )
     Base.metadata.create_all(engine)
     return engine
 
 
+@pytest.fixture(scope="session")
+def _session_factory(_engine) -> sessionmaker[Session]:
+    return sessionmaker(bind=_engine, autoflush=False, autocommit=False, future=True)
+
+
+@pytest.fixture(autouse=True)
+def _clean_db(_engine):
+    yield
+    with _engine.begin() as conn:
+        for table in reversed(Base.metadata.sorted_tables):
+            conn.execute(table.delete())
+
+
 @pytest.fixture
-def db_session(_engine) -> Iterator[Session]:
-    TestSession = sessionmaker(bind=_engine, autoflush=False, autocommit=False, future=True)
-    connection = _engine.connect()
-    transaction = connection.begin()
-    session = TestSession(bind=connection)
+def db_session(_session_factory) -> Iterator[Session]:
+    session = _session_factory()
     try:
         yield session
     finally:
         session.close()
-        transaction.rollback()
-        connection.close()
 
 
 @pytest.fixture(scope="session")
@@ -66,14 +77,12 @@ def mock_agent() -> TicketAgent:
 
 
 @pytest.fixture
-def app(_engine, trained_classifier, mock_agent):
+def app(_session_factory, trained_classifier, mock_agent):
     reset_caches()
     app = create_app()
 
-    TestSession = sessionmaker(bind=_engine, autoflush=False, autocommit=False, future=True)
-
     def _override_db() -> Iterator[Session]:
-        session = TestSession()
+        session = _session_factory()
         try:
             yield session
         finally:
@@ -92,14 +101,12 @@ def client(app) -> TestClient:
 
 
 @pytest.fixture
-def app_without_llm(_engine, trained_classifier):
+def app_without_llm(_session_factory, trained_classifier):
     reset_caches()
     app = create_app()
 
-    TestSession = sessionmaker(bind=_engine, autoflush=False, autocommit=False, future=True)
-
     def _override_db() -> Iterator[Session]:
-        session = TestSession()
+        session = _session_factory()
         try:
             yield session
         finally:
@@ -119,5 +126,4 @@ def client_without_llm(app_without_llm) -> TestClient:
 
 @pytest.fixture(autouse=True)
 def _tmp_cwd(tmp_path: Path, monkeypatch):
-    """Evita que los tests escriban en el directorio del proyecto."""
     monkeypatch.chdir(tmp_path)

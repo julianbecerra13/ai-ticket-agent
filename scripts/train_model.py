@@ -18,7 +18,7 @@ from pathlib import Path
 from src.config import settings
 from src.logging_config import configure_logging
 from src.ml.classifier import TicketClassifier, TrainingMetrics
-from src.ml.dataset import generate_dataset, save_dataset
+from src.ml.dataset import save_dataset
 
 log = logging.getLogger(__name__)
 
@@ -34,11 +34,23 @@ def _plot_confusion(metrics: TrainingMetrics, images_dir: Path) -> None:
     images_dir.mkdir(parents=True, exist_ok=True)
 
     for title, cm, labels, filename in [
-        ("Matriz de confusion - Categoria", metrics.confusion_category, metrics.labels_category, "confusion_category.png"),
-        ("Matriz de confusion - Urgencia", metrics.confusion_urgency, metrics.labels_urgency, "confusion_urgency.png"),
+        (
+            "Matriz de confusion - Categoria",
+            metrics.confusion_category,
+            metrics.labels_category,
+            "confusion_category.png",
+        ),
+        (
+            "Matriz de confusion - Urgencia",
+            metrics.confusion_urgency,
+            metrics.labels_urgency,
+            "confusion_urgency.png",
+        ),
     ]:
         fig, ax = plt.subplots(figsize=(7, 5))
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=labels, yticklabels=labels, ax=ax)
+        sns.heatmap(
+            cm, annot=True, fmt="d", cmap="Blues", xticklabels=labels, yticklabels=labels, ax=ax
+        )
         ax.set_title(title)
         ax.set_xlabel("Prediccion")
         ax.set_ylabel("Real")

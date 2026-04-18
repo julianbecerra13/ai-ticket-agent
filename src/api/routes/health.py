@@ -30,7 +30,7 @@ def health(
     database_ok = True
     try:
         db.execute(text("SELECT 1"))
-    except Exception:  # noqa: BLE001
+    except Exception:
         database_ok = False
 
     return {

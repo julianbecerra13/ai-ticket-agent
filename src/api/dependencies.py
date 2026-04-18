@@ -31,7 +31,7 @@ def get_classifier() -> TicketClassifier | None:
         return None
     try:
         return TicketClassifier.load(path)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         log.error("Error cargando el clasificador: %s", exc)
         return None
 

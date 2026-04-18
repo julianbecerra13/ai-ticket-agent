@@ -56,13 +56,17 @@ class TicketClassifier:
             x is not None for x in (self.vectorizer, self.model_category, self.model_urgency)
         )
 
-    def train(self, df: pd.DataFrame, *, test_size: float = 0.2, random_state: int = 42) -> TrainingMetrics:
+    def train(
+        self, df: pd.DataFrame, *, test_size: float = 0.2, random_state: int = 42
+    ) -> TrainingMetrics:
         texts = df.apply(lambda row: _compose_text(row["subject"], row["body"]), axis=1).tolist()
         y_cat = df["category"].tolist()
         y_urg = df["urgency"].tolist()
 
-        X_train_txt, X_test_txt, y_cat_train, y_cat_test, y_urg_train, y_urg_test = train_test_split(
-            texts, y_cat, y_urg, test_size=test_size, random_state=random_state, stratify=y_cat
+        X_train_txt, X_test_txt, y_cat_train, y_cat_test, y_urg_train, y_urg_test = (
+            train_test_split(
+                texts, y_cat, y_urg, test_size=test_size, random_state=random_state, stratify=y_cat
+            )
         )
 
         self.vectorizer = TfidfVectorizer(

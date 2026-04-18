@@ -66,7 +66,9 @@ class TicketService:
 
             if self.agent is not None:
                 recent = [
-                    t for t in ticket_repo.list_recent(limit=10) if t.user_id == user_id and t.id != ticket.id
+                    t
+                    for t in ticket_repo.list_recent(limit=10)
+                    if t.user_id == user_id and t.id != ticket.id
                 ]
                 decision = self.agent.decide(
                     ticket=ticket, prediction=prediction, recent_history=recent
@@ -84,4 +86,6 @@ class TicketService:
             log.warning("Clasificador no disponible; el ticket %s queda sin procesar.", ticket.id)
 
         self.db.commit()
-        return ProcessedTicket(ticket=ticket_repo.get(ticket.id), classified=classified, decided=decided)
+        return ProcessedTicket(
+            ticket=ticket_repo.get(ticket.id), classified=classified, decided=decided
+        )

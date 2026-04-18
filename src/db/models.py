@@ -13,17 +13,19 @@ Relaciones principales:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import Enum, StrEnum
 
 from sqlalchemy import (
     JSON,
     DateTime,
-    Enum as SAEnum,
     Float,
     ForeignKey,
     String,
     Text,
+)
+from sqlalchemy import (
+    Enum as SAEnum,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -40,14 +42,14 @@ def _enum(enum_cls: type[Enum], name: str) -> SAEnum:
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class Base(DeclarativeBase):
     pass
 
 
-class TicketCategory(str, Enum):
+class TicketCategory(StrEnum):
     TECNICO = "tecnico"
     FACTURACION = "facturacion"
     CUENTA = "cuenta"
@@ -55,21 +57,21 @@ class TicketCategory(str, Enum):
     QUEJA = "queja"
 
 
-class TicketUrgency(str, Enum):
+class TicketUrgency(StrEnum):
     BAJA = "baja"
     MEDIA = "media"
     ALTA = "alta"
     CRITICA = "critica"
 
 
-class AgentActionType(str, Enum):
+class AgentActionType(StrEnum):
     AUTO_RESPOND = "auto_respond"
     ESCALATE = "escalate"
     REQUEST_INFO = "request_info"
     CLOSE_DUPLICATE = "close_duplicate"
 
 
-class ActionStatus(str, Enum):
+class ActionStatus(StrEnum):
     PENDING = "pending"
     EXECUTED = "executed"
     FAILED = "failed"
@@ -137,7 +139,9 @@ class Action(Base):
     decision_id: Mapped[int] = mapped_column(
         ForeignKey("agent_decisions.id", ondelete="CASCADE"), index=True
     )
-    type: Mapped[AgentActionType] = mapped_column(_enum(AgentActionType, "agent_action_type_action"))
+    type: Mapped[AgentActionType] = mapped_column(
+        _enum(AgentActionType, "agent_action_type_action")
+    )
     payload: Mapped[dict] = mapped_column(JSON, default=dict)
     status: Mapped[ActionStatus] = mapped_column(
         _enum(ActionStatus, "action_status"), default=ActionStatus.PENDING

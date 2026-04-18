@@ -12,7 +12,6 @@ import re
 from src.agent.providers.base import LLMProvider
 from src.db.models import AgentActionType, TicketCategory, TicketUrgency
 
-
 _AUTO_RESPONSES = {
     TicketCategory.CUENTA: (
         "Hola, para recuperar el acceso usa la opcion 'Olvide mi contrasena' en la pantalla "
@@ -57,10 +56,14 @@ class MockProvider(LLMProvider):
         if urg in (TicketUrgency.ALTA, TicketUrgency.CRITICA) or cat == TicketCategory.QUEJA:
             action = AgentActionType.ESCALATE
             response_text = None
-            reasoning = f"Urgencia {urg.value} y categoria {cat.value}: se requiere revision humana."
+            reasoning = (
+                f"Urgencia {urg.value} y categoria {cat.value}: se requiere revision humana."
+            )
         elif cat == TicketCategory.TECNICO and urg == TicketUrgency.MEDIA:
             action = AgentActionType.REQUEST_INFO
-            response_text = "Podrias indicarnos navegador, sistema operativo y un video corto del error?"
+            response_text = (
+                "Podrias indicarnos navegador, sistema operativo y un video corto del error?"
+            )
             reasoning = "Se necesita mas contexto tecnico antes de resolver."
         else:
             action = AgentActionType.AUTO_RESPOND

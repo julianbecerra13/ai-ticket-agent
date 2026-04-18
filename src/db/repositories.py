@@ -6,7 +6,7 @@ Cualquier query nueva deberia vivir aqui, nunca dispersa en los endpoints.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
@@ -107,7 +107,7 @@ class AgentDecisionRepository:
                 type=action,
                 payload={"response_text": response_text} if response_text else {},
                 status=ActionStatus.EXECUTED,
-                executed_at=datetime.now(timezone.utc),
+                executed_at=datetime.now(UTC),
             )
         )
         self.db.flush()
@@ -127,7 +127,7 @@ class MetricsRepository:
         stmt_urgencies = select(Prediction.urgency, func.count(Prediction.id))
 
         if since_hours is not None:
-            cutoff = datetime.now(timezone.utc) - timedelta(hours=since_hours)
+            cutoff = datetime.now(UTC) - timedelta(hours=since_hours)
             stmt_tickets = stmt_tickets.where(Ticket.created_at >= cutoff)
             stmt_decisions = stmt_decisions.join(Ticket).where(Ticket.created_at >= cutoff)
             stmt_categories = stmt_categories.join(Ticket).where(Ticket.created_at >= cutoff)

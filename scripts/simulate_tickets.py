@@ -12,7 +12,6 @@ import random
 import time
 
 import httpx
-
 from src.logging_config import configure_logging
 from src.ml.dataset import generate_dataset
 

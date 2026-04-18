@@ -19,6 +19,37 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
+    ticket_category = sa.Enum(
+        "tecnico", "facturacion", "cuenta", "informacion", "queja",
+        name="ticket_category",
+        native_enum=False,
+        length=32,
+    )
+    ticket_urgency = sa.Enum(
+        "baja", "media", "alta", "critica",
+        name="ticket_urgency",
+        native_enum=False,
+        length=32,
+    )
+    agent_action = sa.Enum(
+        "auto_respond", "escalate", "request_info", "close_duplicate",
+        name="agent_action_type",
+        native_enum=False,
+        length=32,
+    )
+    agent_action_action = sa.Enum(
+        "auto_respond", "escalate", "request_info", "close_duplicate",
+        name="agent_action_type_action",
+        native_enum=False,
+        length=32,
+    )
+    action_status = sa.Enum(
+        "pending", "executed", "failed",
+        name="action_status",
+        native_enum=False,
+        length=32,
+    )
+
     op.create_table(
         "tickets",
         sa.Column("id", sa.Integer(), primary_key=True),
@@ -40,8 +71,8 @@ def upgrade() -> None:
             nullable=False,
             unique=True,
         ),
-        sa.Column("category", sa.String(length=32), nullable=False),
-        sa.Column("urgency", sa.String(length=16), nullable=False),
+        sa.Column("category", ticket_category, nullable=False),
+        sa.Column("urgency", ticket_urgency, nullable=False),
         sa.Column("confidence_category", sa.Float(), nullable=False),
         sa.Column("confidence_urgency", sa.Float(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
@@ -58,7 +89,7 @@ def upgrade() -> None:
             nullable=False,
             unique=True,
         ),
-        sa.Column("action", sa.String(length=32), nullable=False),
+        sa.Column("action", agent_action, nullable=False),
         sa.Column("reasoning", sa.Text(), nullable=False),
         sa.Column("response_text", sa.Text(), nullable=True),
         sa.Column("llm_provider", sa.String(length=32), nullable=False),
@@ -76,9 +107,9 @@ def upgrade() -> None:
             sa.ForeignKey("agent_decisions.id", ondelete="CASCADE"),
             nullable=False,
         ),
-        sa.Column("type", sa.String(length=32), nullable=False),
+        sa.Column("type", agent_action_action, nullable=False),
         sa.Column("payload", sa.JSON(), nullable=False),
-        sa.Column("status", sa.String(length=16), nullable=False),
+        sa.Column("status", action_status, nullable=False),
         sa.Column("executed_at", sa.DateTime(timezone=True), nullable=True),
     )
     op.create_index("ix_actions_decision_id", "actions", ["decision_id"])

@@ -19,12 +19,24 @@ from enum import Enum
 from sqlalchemy import (
     JSON,
     DateTime,
+    Enum as SAEnum,
     Float,
     ForeignKey,
     String,
     Text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+
+def _enum(enum_cls: type[Enum], name: str) -> SAEnum:
+    """Crea un tipo Enum portable (VARCHAR + CHECK) compatible con SQLite y Postgres."""
+    return SAEnum(
+        enum_cls,
+        name=name,
+        native_enum=False,
+        values_callable=lambda e: [m.value for m in e],
+        length=32,
+    )
 
 
 def _utcnow() -> datetime:
@@ -89,8 +101,8 @@ class Prediction(Base):
     ticket_id: Mapped[int] = mapped_column(
         ForeignKey("tickets.id", ondelete="CASCADE"), unique=True, index=True
     )
-    category: Mapped[TicketCategory] = mapped_column(String(32))
-    urgency: Mapped[TicketUrgency] = mapped_column(String(16))
+    category: Mapped[TicketCategory] = mapped_column(_enum(TicketCategory, "ticket_category"))
+    urgency: Mapped[TicketUrgency] = mapped_column(_enum(TicketUrgency, "ticket_urgency"))
     confidence_category: Mapped[float] = mapped_column(Float)
     confidence_urgency: Mapped[float] = mapped_column(Float)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
@@ -105,7 +117,7 @@ class AgentDecision(Base):
     ticket_id: Mapped[int] = mapped_column(
         ForeignKey("tickets.id", ondelete="CASCADE"), unique=True, index=True
     )
-    action: Mapped[AgentActionType] = mapped_column(String(32))
+    action: Mapped[AgentActionType] = mapped_column(_enum(AgentActionType, "agent_action_type"))
     reasoning: Mapped[str] = mapped_column(Text)
     response_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     llm_provider: Mapped[str] = mapped_column(String(32))
@@ -125,9 +137,11 @@ class Action(Base):
     decision_id: Mapped[int] = mapped_column(
         ForeignKey("agent_decisions.id", ondelete="CASCADE"), index=True
     )
-    type: Mapped[AgentActionType] = mapped_column(String(32))
+    type: Mapped[AgentActionType] = mapped_column(_enum(AgentActionType, "agent_action_type_action"))
     payload: Mapped[dict] = mapped_column(JSON, default=dict)
-    status: Mapped[ActionStatus] = mapped_column(String(16), default=ActionStatus.PENDING)
+    status: Mapped[ActionStatus] = mapped_column(
+        _enum(ActionStatus, "action_status"), default=ActionStatus.PENDING
+    )
     executed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     decision: Mapped[AgentDecision] = relationship(back_populates="actions")

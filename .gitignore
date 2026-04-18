@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Virtualenvs
+.venv/
+venv/
+env/
+ENV/
+
+# Entornos y secretos
+.env
+.env.local
+.env.*.local
+
+# IDEs y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.tox/
+.nox/
+
+# Mypy / Ruff
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# Logs
+*.log
+logs/
+
+# Datos procesados y artefactos
+data/processed/*
+!data/processed/.gitkeep
+
+# Modelos entrenados pesados (el .pkl principal sí se versiona)
+src/ml/models/*.tmp
+src/ml/models/checkpoints/
+
+# Docker
+.dockerignore
